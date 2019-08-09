@@ -28,10 +28,9 @@ jobs:
       - run: go get github.com/lib/pq
       - run: go get github.com/mattes/migrate
       - run: go get github.com/jstemmer/go-junit-report
-      - run: scrips/run_migrations.sh
       - run:
-          name: Setup db
-          command:
+        name: Setup db
+        command: scripts/run_migrations.sh
 
       - run:
           name: Install dependencies
