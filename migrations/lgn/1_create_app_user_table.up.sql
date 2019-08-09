@@ -1,4 +1,4 @@
-create table "user"
+create table "app_user"
 (
     id varchar(36) not null,
     name varchar(55) not null,

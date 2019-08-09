@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/suite"
-	"lgn/internal"
+	"lgn/internal/controller"
 	"log"
 	"testing"
 )
@@ -35,9 +35,7 @@ func (suite *ComponentTestSuite) SetupSuite() {
 
 	suite.db = db
 
-	router := echo.New()
-	internal.SetupRouter(router, suite.db)
-	suite.router = router
+	suite.router = controller.SetupRoutes(suite.db, []byte("s3cr3t"))
 }
 
 func (suite *ComponentTestSuite) SetupTest() {
