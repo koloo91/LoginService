@@ -9,7 +9,7 @@ import (
 )
 
 func CreateUser(ctx context.Context, db *sql.DB, user *model.User) error {
-	statement, err := db.Prepare("INSERT INTO users(id, name, password_hash) VALUES($1, $2, $3)")
+	statement, err := db.Prepare("INSERT INTO app_user(id, name, password_hash) VALUES($1, $2, $3)")
 	if err != nil {
 		return err
 	}
@@ -22,7 +22,7 @@ func CreateUser(ctx context.Context, db *sql.DB, user *model.User) error {
 }
 
 func GetUserById(ctx context.Context, db *sql.DB, userId string) (*model.User, error) {
-	row := db.QueryRowContext(ctx, "SELECT id, name, password_hash, created, updated FROM users WHERE id = $1", userId)
+	row := db.QueryRowContext(ctx, "SELECT id, name, password_hash, created, updated FROM app_user WHERE id = $1", userId)
 
 	var id, name, passwordHash string
 	var created, updated time.Time
@@ -41,7 +41,7 @@ func GetUserById(ctx context.Context, db *sql.DB, userId string) (*model.User, e
 }
 
 func GetUserByName(ctx context.Context, db *sql.DB, userName string) (*model.User, error) {
-	row := db.QueryRowContext(ctx, "SELECT id, name, password_hash, created, updated FROM users WHERE name = $1", strings.ToLower(userName))
+	row := db.QueryRowContext(ctx, "SELECT id, name, password_hash, created, updated FROM app_user WHERE name = $1", strings.ToLower(userName))
 
 	var id, name, passwordHash string
 	var created, updated time.Time

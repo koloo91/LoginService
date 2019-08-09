@@ -11,7 +11,6 @@ import (
 	"lgn/internal/controller"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -30,6 +29,15 @@ func Start() {
 	db := connectToDatabase()
 
 	e := echo.New()
+	SetupRouter(e, db)
+
+	port := getEnvOrDefault("PORT", "8080")
+	AppLogger.Infof("Starting http server on port %s", port)
+
+	AppLogger.Fatal(e.Start(fmt.Sprintf(":%s", port)))
+}
+
+func SetupRouter(e *echo.Echo, db *sql.DB) {
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: `{"time":"${time_rfc3339_nano}","id":"${id}","remote_ip":"${remote_ip}",` +
 			`"host":"${host}","method":"${method}","uri":"${uri}","user_agent":"${user_agent}",` +
@@ -41,6 +49,7 @@ func Start() {
 
 	corsConfig := middleware.DefaultCORSConfig
 	corsConfig.AllowMethods = append(middleware.DefaultCORSConfig.AllowMethods, http.MethodOptions)
+
 	e.Use(middleware.CORSWithConfig(corsConfig))
 
 	AppLogger.Info("Setting up routes")
@@ -50,19 +59,11 @@ func Start() {
 		internalGroup.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 	}
 
-	if disableRegisterRoute, _ := strconv.ParseBool(getEnvOrDefault("DISABLE_REGISTER", "false")); !disableRegisterRoute {
-		AppLogger.Info("Register route is enabled")
-		e.POST("/register", controller.Register(db))
-	} else {
-		AppLogger.Info("Register route is disabled")
+	{
+		apiGroup := e.Group("/api")
+		apiGroup.POST("/api/register", controller.Register(db))
+		apiGroup.POST("/api/login", controller.Login(db, jwtKey))
 	}
-
-	e.POST("/login", controller.Login(db, jwtKey))
-
-	port := getEnvOrDefault("PORT", "8080")
-	AppLogger.Infof("Starting http server on port %s", port)
-
-	AppLogger.Fatal(e.Start(fmt.Sprintf(":%s", port)))
 }
 
 func connectToDatabase() *sql.DB {
@@ -70,6 +71,7 @@ func connectToDatabase() *sql.DB {
 	dbUser := getEnvOrDefault("DB_USER", "lgn")
 	dbPassword := getEnvOrDefault("DB_PASSWORD", "lgn")
 	dbName := getEnvOrDefault("DB_NAME", "lgn")
+
 	connectionString := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", dbHost, dbUser, dbPassword, dbName)
 
 	logrus.Infof("Using connection string '%s'", connectionString)

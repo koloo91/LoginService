@@ -1,4 +1,4 @@
-create table "users"
+create table "user"
 (
     id varchar(36) not null,
     name varchar(55) not null,
@@ -8,11 +8,11 @@ create table "users"
 );
 
 create unique index user_id_uindex
-    on users (id);
+    on app_user (id);
 
 create unique index user_name_uindex
-    on users (lower(name));
+    on app_user (lower(name));
 
-alter table users
+alter table app_user
     add constraint user_pk
         primary key (id);

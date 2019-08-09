@@ -2,10 +2,9 @@ version: '3.7'
 
 services:
   db:
-    image: postgres:11.4
+    image: postgres:11.5
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: lgn
-      POSTGRES_PASSWORD: lgn
-      POSTGRES_DB: lgn
+      POSTGRES_USER: kolo
+      POSTGRES_PASSWORD: Pass00
