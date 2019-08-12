@@ -25,10 +25,10 @@ jobs:
               sleep 1
             done
             echo Failed waiting for Postgres && exit 1
-      - run: go get github.com/mattes/migrate && go install /go/src/github.com/mattes/migrate
+      - run: curl -L https://github.com/golang-migrate/migrate/releases/download/v4.5.0/migrate.linux-amd64.tar.gz | tar xvz && mvn migrate.linux-amd64 scripts/migrate
       - run:
           name: Setup db
-          command: scripts/run_migrations.sh
+          command: scripts/run_migrations_ci.sh
 
       - run:
           name: Install dependencies
