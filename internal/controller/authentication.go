@@ -37,7 +37,7 @@ func Login(db *sql.DB, jwtKey []byte) echo.HandlerFunc {
 
 		token, err := service.Login(ctx.Request().Context(), db, jwtKey, &loginVo)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid credentials")
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid credentials")
 		}
 
 		return ctx.JSON(http.StatusOK, map[string]string{"token": token, "type": "Bearer"})

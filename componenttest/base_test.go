@@ -1,12 +1,15 @@
 package componenttest
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"github.com/labstack/echo"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/suite"
 	"lgn/internal/controller"
+	"lgn/internal/model"
+	"lgn/internal/service"
 	"log"
 	"testing"
 )
@@ -41,4 +44,12 @@ func (suite *ComponentTestSuite) SetupSuite() {
 func (suite *ComponentTestSuite) SetupTest() {
 	deleteUserStatement, _ := suite.db.Prepare("DELETE FROM app_user;")
 	_, _ = deleteUserStatement.Exec()
+}
+
+func (suite *ComponentTestSuite) createUser(name, password string) *model.UserVo {
+	user, err := service.Register(context.Background(), suite.db, &model.RegisterVo{Name: name, Password: password})
+	if err != nil {
+		log.Fatal("error creating user", err)
+	}
+	return user
 }
