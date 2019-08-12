@@ -25,9 +25,7 @@ jobs:
               sleep 1
             done
             echo Failed waiting for Postgres && exit 1
-      - run: go get github.com/lib/pq
-      - run: go get github.com/mattes/migrate && migrate
-      - run: go get github.com/jstemmer/go-junit-report
+      - run: go get github.com/mattes/migrate && go install /go/src/github.com/mattes/migrate
       - run:
           name: Setup db
           command: scripts/run_migrations.sh
