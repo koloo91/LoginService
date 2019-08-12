@@ -25,7 +25,6 @@ jobs:
               sleep 1
             done
             echo Failed waiting for Postgres && exit 1
-      - run: curl -L https://github.com/golang-migrate/migrate/releases/download/v4.5.0/migrate.linux-amd64.tar.gz | tar xvz && mv migrate.linux-amd64 scripts/migrate && scripts/run_migrations_ci.sh
 
       - run:
           name: Install dependencies
