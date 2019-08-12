@@ -3,10 +3,10 @@ package componenttest
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"github.com/labstack/echo"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/suite"
+	"lgn/internal"
 	"lgn/internal/controller"
 	"lgn/internal/model"
 	"lgn/internal/service"
@@ -25,18 +25,7 @@ func TestComponentTestSuite(t *testing.T) {
 }
 
 func (suite *ComponentTestSuite) SetupSuite() {
-	connectionString := fmt.Sprintf("host=localhost user=lgn password=lgn dbname=lgn_service sslmode=disable")
-	db, err := sql.Open("postgres", connectionString)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := db.Ping(); err != nil {
-		log.Fatal(err)
-	}
-
-	suite.db = db
+	suite.db = internal.ConnectToDatabase("kolo", "Pass00", "lgn", "lgn", "localhost", "lgn_service", "file://../migrations")
 
 	suite.router = controller.SetupRoutes(suite.db, []byte("s3cr3t"))
 }
