@@ -1,0 +1,42 @@
+package componenttest
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"github.com/labstack/echo"
+	"net/http"
+	"net/http/httptest"
+)
+
+func (suite *ComponentTestSuite) TestShouldReturnUserProfileSuccessful() {
+	suite.createUser("foo", "bar")
+
+	body := bytes.NewBuffer([]byte(`{"name": "foo", "password": "bar"}`))
+
+	recorder := httptest.NewRecorder()
+	request, _ := http.NewRequest("POST", "/api/login", body)
+	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	suite.router.ServeHTTP(recorder, request)
+
+	suite.Equal(http.StatusOK, recorder.Code)
+
+	var loginResponse map[string]interface{}
+	suite.Nil(json.NewDecoder(recorder.Body).Decode(&loginResponse))
+
+	suite.True(len(loginResponse["token"].(string)) > 0)
+	suite.Equal("Bearer", loginResponse["type"])
+
+	profileRecorder := httptest.NewRecorder()
+	profileRequest, _ := http.NewRequest("GET", "/api/profile", nil)
+	profileRequest.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	profileRequest.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %s", loginResponse["token"].(string)))
+	suite.router.ServeHTTP(profileRecorder, profileRequest)
+
+	var profileResponse map[string]interface{}
+	suite.Nil(json.NewDecoder(profileRecorder.Body).Decode(&profileResponse))
+
+	suite.True(len(profileResponse["id"].(string)) > 0)
+	suite.Equal("foo", profileResponse["name"].(string))
+}

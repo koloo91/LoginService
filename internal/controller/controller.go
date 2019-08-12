@@ -37,6 +37,9 @@ func SetupRoutes(db *sql.DB, jwtKey []byte) *echo.Echo {
 		apiGroup := router.Group("/api")
 		apiGroup.POST("/register", Register(db))
 		apiGroup.POST("/login", Login(db, jwtKey))
+
+		apiGroup.Use(middleware.JWTWithConfig(middleware.JWTConfig{SigningKey: jwtKey}))
+		apiGroup.GET("/profile", Profile())
 	}
 
 	return router
