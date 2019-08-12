@@ -29,10 +29,3 @@ jobs:
       - run:
           name: Execute tests
           command: go test -v ./...
-
-workflows:
-  build-docker-image-only:
-    jobs:
-      - docker/publish:
-          deploy: false
-          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
