@@ -2,7 +2,7 @@ FROM golang:alpine AS builder
 ENV GO111MODULE=on
 RUN apk update && apk add --no-cache git
 WORKDIR /src
-ADD ../../.. .
+ADD . .
 RUN go build -o lgn
 
 FROM alpine
