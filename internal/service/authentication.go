@@ -1,14 +1,14 @@
 package service
 
 import (
+	"bitbucket.org/Koloo/lgn/internal/model"
+	"bitbucket.org/Koloo/lgn/internal/repository"
 	"context"
 	"database/sql"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
-	"lgn/internal/model"
-	"lgn/internal/repository"
 	"time"
 )
 

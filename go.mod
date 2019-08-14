@@ -1,4 +1,4 @@
-module lgn
+module bitbucket.org/Koloo/lgn
 
 go 1.12
 

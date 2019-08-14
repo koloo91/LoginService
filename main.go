@@ -1,7 +1,7 @@
 package main
 
 import (
-	"lgn/internal"
+	"bitbucket.org/Koloo/lgn/internal"
 )
 
 func main() {

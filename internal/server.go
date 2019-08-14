@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"bitbucket.org/Koloo/lgn/internal/controller"
+	"bitbucket.org/Koloo/lgn/internal/logging"
 	"database/sql"
 	"fmt"
 	"github.com/golang-migrate/migrate"
@@ -9,8 +11,7 @@ import (
 	_ "github.com/golang-migrate/migrate/source/file"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
-	"lgn/internal/controller"
-	"lgn/internal/logging"
+
 	"os"
 	"time"
 )

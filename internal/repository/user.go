@@ -1,9 +1,9 @@
 package repository
 
 import (
+	"bitbucket.org/Koloo/lgn/internal/model"
 	"context"
 	"database/sql"
-	"lgn/internal/model"
 	"strings"
 	"time"
 )

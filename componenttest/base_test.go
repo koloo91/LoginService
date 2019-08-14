@@ -1,15 +1,16 @@
 package componenttest
 
 import (
+	"bitbucket.org/Koloo/lgn/internal"
+	"bitbucket.org/Koloo/lgn/internal/controller"
+	"bitbucket.org/Koloo/lgn/internal/model"
+	"bitbucket.org/Koloo/lgn/internal/service"
 	"context"
 	"database/sql"
 	"github.com/labstack/echo"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/suite"
-	"lgn/internal"
-	"lgn/internal/controller"
-	"lgn/internal/model"
-	"lgn/internal/service"
+
 	"log"
 	"testing"
 )

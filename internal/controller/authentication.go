@@ -1,11 +1,11 @@
 package controller
 
 import (
+	"bitbucket.org/Koloo/lgn/internal/model"
+	"bitbucket.org/Koloo/lgn/internal/service"
 	"database/sql"
 	"github.com/labstack/echo"
 	"github.com/lib/pq"
-	"lgn/internal/model"
-	"lgn/internal/service"
 	"net/http"
 )
 
