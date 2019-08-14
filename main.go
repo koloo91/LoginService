@@ -1,9 +1,9 @@
 package main
 
 import (
-	"bitbucket.org/Koloo/lgn/internal"
+	"bitbucket.org/Koloo/lgn/app"
 )
 
 func main() {
-	internal.Start()
+	app.Start()
 }

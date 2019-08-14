@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"bitbucket.org/Koloo/lgn/internal/model"
+	"bitbucket.org/Koloo/lgn/app/model"
 	"context"
 	"database/sql"
 	"strings"

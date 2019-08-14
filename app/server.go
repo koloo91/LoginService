@@ -1,8 +1,8 @@
-package internal
+package app
 
 import (
-	"bitbucket.org/Koloo/lgn/internal/controller"
-	"bitbucket.org/Koloo/lgn/internal/logging"
+	"bitbucket.org/Koloo/lgn/app/controller"
+	"bitbucket.org/Koloo/lgn/app/logging"
 	"database/sql"
 	"fmt"
 	"github.com/golang-migrate/migrate"

@@ -1,8 +1,8 @@
 package service
 
 import (
-	"bitbucket.org/Koloo/lgn/internal/model"
-	"bitbucket.org/Koloo/lgn/internal/repository"
+	"bitbucket.org/Koloo/lgn/app/model"
+	"bitbucket.org/Koloo/lgn/app/repository"
 	"context"
 	"database/sql"
 	"fmt"

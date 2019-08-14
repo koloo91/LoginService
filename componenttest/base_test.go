@@ -1,10 +1,10 @@
 package componenttest
 
 import (
-	"bitbucket.org/Koloo/lgn/internal"
-	"bitbucket.org/Koloo/lgn/internal/controller"
-	"bitbucket.org/Koloo/lgn/internal/model"
-	"bitbucket.org/Koloo/lgn/internal/service"
+	"bitbucket.org/Koloo/lgn/app"
+	"bitbucket.org/Koloo/lgn/app/controller"
+	"bitbucket.org/Koloo/lgn/app/model"
+	"bitbucket.org/Koloo/lgn/app/service"
 	"context"
 	"database/sql"
 	"github.com/labstack/echo"
@@ -26,7 +26,7 @@ func TestComponentTestSuite(t *testing.T) {
 }
 
 func (suite *ComponentTestSuite) SetupSuite() {
-	suite.db = internal.ConnectToDatabase("kolo", "Pass00", "lgn", "lgn", "localhost", "lgn_service", "file://../migrations")
+	suite.db = app.ConnectToDatabase("kolo", "Pass00", "lgn", "lgn", "localhost", "lgn_service", "file://../migrations")
 
 	suite.router = controller.SetupRoutes(suite.db, []byte("s3cr3t"))
 }

@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"bitbucket.org/Koloo/lgn/internal/model"
-	"bitbucket.org/Koloo/lgn/internal/service"
+	"bitbucket.org/Koloo/lgn/app/model"
+	"bitbucket.org/Koloo/lgn/app/service"
 	"database/sql"
 	"github.com/labstack/echo"
 	"github.com/lib/pq"
