@@ -41,7 +41,7 @@ func Login(ctx context.Context, db *sql.DB, jwtKey []byte, loginVo *model.LoginV
 	}
 
 	expirationTime := time.Now().Add(1 * time.Hour)
-	claims := &model.Claim{
+	claims := &model.UserClaim{
 		Id:   user.Id,
 		Name: user.Name,
 		StandardClaims: jwt.StandardClaims{
