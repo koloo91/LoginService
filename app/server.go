@@ -2,7 +2,7 @@ package app
 
 import (
 	"bitbucket.org/Koloo/lgn/app/controller"
-	"bitbucket.org/Koloo/lgn/app/logging"
+	"bitbucket.org/Koloo/lgn/app/log"
 	"database/sql"
 	"fmt"
 	"github.com/golang-migrate/migrate"
@@ -24,7 +24,7 @@ func init() {
 }
 
 func Start() {
-	logging.AppLogger.Info("Starting application")
+	log.Info("Starting application")
 
 	dbaUser := getEnvOrDefault("DBA_USER", "lng_dba")
 	dbaPassword := getEnvOrDefault("DBA_PASSWORD", "lng_dba")
@@ -38,21 +38,21 @@ func Start() {
 	router := controller.SetupRoutes(db, jwtKey)
 
 	port := getEnvOrDefault("PORT", "8080")
-	logging.AppLogger.Infof("Starting http server on port %s", port)
+	log.Infof("Starting http server on port %s", port)
 
-	logging.AppLogger.Fatal(router.Start(fmt.Sprintf(":%s", port)))
+	log.Fatal(router.Start(fmt.Sprintf(":%s", port)))
 }
 
 func ConnectToDatabase(dbaUser, dbaPassword, dbUser, dbPassword, host, dbName, migrationFilesPath string) *sql.DB {
 	dbaConnectionString := fmt.Sprintf("host=%s user=%s password=%s dbname=postgres sslmode=disable", host, dbaUser, dbaPassword)
 	dbaDb, err := sql.Open("postgres", dbaConnectionString)
 	if err != nil {
-		logging.AppLogger.Fatalf("Error opening dba database connection '%s'", err.Error())
+		log.Fatalf("Error opening dba database connection '%s'", err.Error())
 		return nil
 	}
 
 	if err := dbaDb.Ping(); err != nil {
-		logging.AppLogger.Fatalf("Error pinging database with dba user '%s'", err.Error())
+		log.Fatalf("Error pinging database with dba user '%s'", err.Error())
 		return nil
 	}
 
@@ -67,12 +67,12 @@ func ConnectToDatabase(dbaUser, dbaPassword, dbUser, dbPassword, host, dbName, m
 	connectionString := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, dbUser, dbPassword, dbName)
 	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
-		logging.AppLogger.Fatalf("Error opening database connection '%s'", err.Error())
+		log.Fatalf("Error opening database connection '%s'", err.Error())
 		return nil
 	}
 
 	if err := db.Ping(); err != nil {
-		logging.AppLogger.Fatalf("Error pinging database '%s'", err.Error())
+		log.Fatalf("Error pinging database '%s'", err.Error())
 		return nil
 	}
 
@@ -82,7 +82,7 @@ func ConnectToDatabase(dbaUser, dbaPassword, dbUser, dbPassword, host, dbName, m
 		logrus.Fatal("Error migrating database ", err)
 	}
 
-	logging.AppLogger.Infof("Connected to database '%s' with user '%s'", host, dbUser)
+	log.Infof("Connected to database '%s' with user '%s'", host, dbUser)
 
 	db.SetConnMaxLifetime(5 * time.Minute)
 	db.SetMaxIdleConns(10)
