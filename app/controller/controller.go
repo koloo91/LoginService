@@ -32,6 +32,7 @@ func SetupRoutes(db *sql.DB, jwtKey []byte) *echo.Echo {
 	{
 		internalGroup := router.Group("/internal")
 		internalGroup.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
+		internalGroup.GET("/alive", alive())
 	}
 
 	{
@@ -44,4 +45,10 @@ func SetupRoutes(db *sql.DB, jwtKey []byte) *echo.Echo {
 	}
 
 	return router
+}
+
+func alive() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		return ctx.HTML(http.StatusNoContent, "")
+	}
 }
