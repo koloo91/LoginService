@@ -59,7 +59,7 @@ func ConnectToDatabase(dbaUser, dbaPassword, dbUser, dbPassword, host, dbName, m
 	dbaDriver, err := postgres.WithInstance(dbaDb, &postgres.Config{})
 	dbaMigrations, _ := migrate.NewWithDatabaseInstance(fmt.Sprintf("%s/dba", migrationFilesPath), "postgres", dbaDriver)
 	if err := dbaMigrations.Up(); err != nil && err != migrate.ErrNoChange {
-		logrus.Fatal("Error migrating database ", err)
+		log.Fatal("Error migrating database ", err)
 	}
 
 	_ = dbaDb.Close()
@@ -79,7 +79,7 @@ func ConnectToDatabase(dbaUser, dbaPassword, dbUser, dbPassword, host, dbName, m
 	dbDriver, err := postgres.WithInstance(db, &postgres.Config{})
 	dbMigrations, _ := migrate.NewWithDatabaseInstance(fmt.Sprintf("%s/lgn", migrationFilesPath), "postgres", dbDriver)
 	if err := dbMigrations.Up(); err != nil && err != migrate.ErrNoChange {
-		logrus.Fatal("Error migrating database ", err)
+		log.Fatal("Error migrating database ", err)
 	}
 
 	log.Infof("Connected to database '%s' with user '%s'", host, dbUser)

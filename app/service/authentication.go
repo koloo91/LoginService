@@ -1,13 +1,13 @@
 package service
 
 import (
+	"bitbucket.org/Koloo/lgn/app/log"
 	"bitbucket.org/Koloo/lgn/app/model"
 	"bitbucket.org/Koloo/lgn/app/repository"
 	"context"
 	"database/sql"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
@@ -15,13 +15,13 @@ import (
 func Register(ctx context.Context, db *sql.DB, registerVo *model.RegisterVo) (*model.UserVo, error) {
 	hashedPassword, err := hashPassword(registerVo.Password)
 	if err != nil {
-		logrus.Errorf("error hashing password '%s'", err.Error())
+		log.Errorf("error hashing password '%s'", err.Error())
 		return nil, err
 	}
 
 	user := model.NewUser(registerVo.Name, hashedPassword)
 	if err := repository.CreateUser(ctx, db, user); err != nil {
-		logrus.Errorf("error creating user '%s'", err.Error())
+		log.Errorf("error creating user '%s'", err.Error())
 		return nil, err
 	}
 
@@ -31,12 +31,12 @@ func Register(ctx context.Context, db *sql.DB, registerVo *model.RegisterVo) (*m
 func Login(ctx context.Context, db *sql.DB, jwtKey []byte, loginVo *model.LoginVo) (string, error) {
 	user, err := repository.GetUserByName(ctx, db, loginVo.Name)
 	if err != nil {
-		logrus.Errorf("error getting user by name '%s'", err.Error())
+		log.Errorf("error getting user by name '%s'", err.Error())
 		return "", err
 	}
 
 	if err := checkPasswordHash(loginVo.Password, user.PasswordHash); err != nil {
-		logrus.Errorf("error checking passwords '%s'", err.Error())
+		log.Errorf("error checking passwords '%s'", err.Error())
 		return "", fmt.Errorf("invalid credentials")
 	}
 
@@ -52,7 +52,7 @@ func Login(ctx context.Context, db *sql.DB, jwtKey []byte, loginVo *model.LoginV
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
-		logrus.Errorf("error signing token '%s'", err.Error())
+		log.Errorf("error signing token '%s'", err.Error())
 		return "", err
 	}
 
