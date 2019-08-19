@@ -13,3 +13,9 @@ type UserContext struct {
 func (ctx *UserContext) GetUser() model.UserClaim {
 	return ctx.Get("user").(*jwt.Token).Claims.(model.UserClaim)
 }
+
+func UserContextMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return next(&UserContext{Context: c})
+	}
+}
