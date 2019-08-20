@@ -6,5 +6,5 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: kolo
-      POSTGRES_PASSWORD: Pass00
+      POSTGRES_USER: lgn_dba
+      POSTGRES_PASSWORD: lgn_dba

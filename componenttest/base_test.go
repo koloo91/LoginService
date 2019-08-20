@@ -26,7 +26,7 @@ func TestComponentTestSuite(t *testing.T) {
 }
 
 func (suite *ComponentTestSuite) SetupSuite() {
-	suite.db = app.ConnectToDatabase("kolo", "Pass00", "lgn", "lgn", "localhost", "lgn_service", "file://../migrations")
+	suite.db = app.ConnectToDatabase("lgn_dba", "lgn_dba", "lgn", "lgn", "localhost", "lgn_service", "file://../migrations")
 
 	suite.router = controller.SetupRoutes(suite.db, []byte("s3cr3t"))
 }

@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func Register(db *sql.DB) echo.HandlerFunc {
+func register(db *sql.DB) echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		var registerVo model.RegisterVo
 		if err := ctx.Bind(&registerVo); err != nil {
@@ -28,7 +28,7 @@ func Register(db *sql.DB) echo.HandlerFunc {
 	}
 }
 
-func Login(db *sql.DB, jwtKey []byte) echo.HandlerFunc {
+func login(db *sql.DB, jwtKey []byte) echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		var loginVo model.LoginVo
 		if err := ctx.Bind(&loginVo); err != nil {

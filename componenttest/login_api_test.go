@@ -14,7 +14,7 @@ func (suite *ComponentTestSuite) TestLoginUserSuccessful() {
 	body := bytes.NewBuffer([]byte(`{"name": "foo", "password": "bar"}`))
 
 	recorder := httptest.NewRecorder()
-	request, _ := http.NewRequest("POST", "/api/login", body)
+	request, _ := http.NewRequest(http.MethodPost, "/api/login", body)
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.router.ServeHTTP(recorder, request)
@@ -32,7 +32,7 @@ func (suite *ComponentTestSuite) TestLoginUserShouldFail() {
 	body := bytes.NewBuffer([]byte(`{"name": "foo", "password": "bar"}`))
 
 	recorder := httptest.NewRecorder()
-	request, _ := http.NewRequest("POST", "/api/login", body)
+	request, _ := http.NewRequest(http.MethodPost, "/api/login", body)
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.router.ServeHTTP(recorder, request)

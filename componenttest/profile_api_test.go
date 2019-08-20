@@ -15,7 +15,7 @@ func (suite *ComponentTestSuite) TestShouldReturnUserProfileSuccessful() {
 	body := bytes.NewBuffer([]byte(`{"name": "foo", "password": "bar"}`))
 
 	recorder := httptest.NewRecorder()
-	request, _ := http.NewRequest("POST", "/api/login", body)
+	request, _ := http.NewRequest(http.MethodPost, "/api/login", body)
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.router.ServeHTTP(recorder, request)
@@ -29,7 +29,7 @@ func (suite *ComponentTestSuite) TestShouldReturnUserProfileSuccessful() {
 	suite.Equal("Bearer", loginResponse["type"])
 
 	profileRecorder := httptest.NewRecorder()
-	profileRequest, _ := http.NewRequest("GET", "/api/profile", nil)
+	profileRequest, _ := http.NewRequest(http.MethodGet, "/api/profile", nil)
 	profileRequest.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	profileRequest.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %s", loginResponse["token"].(string)))
 	suite.router.ServeHTTP(profileRecorder, profileRequest)

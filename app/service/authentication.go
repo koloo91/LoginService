@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
 func Register(ctx context.Context, db *sql.DB, registerVo *model.RegisterVo) (*model.UserVo, error) {
@@ -40,13 +39,9 @@ func Login(ctx context.Context, db *sql.DB, jwtKey []byte, loginVo *model.LoginV
 		return "", fmt.Errorf("invalid credentials")
 	}
 
-	expirationTime := time.Now().Add(1 * time.Hour)
 	claims := &model.UserClaim{
 		Id:   user.Id,
 		Name: user.Name,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
-		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

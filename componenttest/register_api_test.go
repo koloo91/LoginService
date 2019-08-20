@@ -12,7 +12,7 @@ func (suite *ComponentTestSuite) TestRegisterUserSuccessful() {
 	body := bytes.NewBuffer([]byte(`{"name": "kolo", "password": "Pass00"}`))
 
 	recorder := httptest.NewRecorder()
-	request, _ := http.NewRequest("POST", "/api/register", body)
+	request, _ := http.NewRequest(http.MethodPost, "/api/register", body)
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.router.ServeHTTP(recorder, request)
@@ -32,7 +32,7 @@ func (suite *ComponentTestSuite) TestRegisterUserWithExistingShouldFail() {
 	firstBody := bytes.NewBuffer([]byte(`{"name": "kolo", "password": "Pass00"}`))
 
 	firstRecorder := httptest.NewRecorder()
-	firstRequest, _ := http.NewRequest("POST", "/api/register", firstBody)
+	firstRequest, _ := http.NewRequest(http.MethodPost, "/api/register", firstBody)
 	firstRequest.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.router.ServeHTTP(firstRecorder, firstRequest)

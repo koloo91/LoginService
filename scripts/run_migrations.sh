@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 echo "Running dba migrations"
-migrate --source file://../migrations/dba -database "postgres://kolo:Pass00@localhost:5432/postgres?sslmode=disable" up
+migrate --source file://../migrations/dba -database "postgres://lgn_dba:lgn_dba@localhost:5432/postgres?sslmode=disable" up
 echo "Dba migrations finished"
 
 echo "Running lgn migrations"
