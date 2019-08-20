@@ -4,12 +4,19 @@ import (
 	"bitbucket.org/Koloo/lgn/app/log"
 	"bitbucket.org/Koloo/lgn/app/security"
 	"database/sql"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	echoSwagger "github.com/swaggo/echo-swagger"
 	"net/http"
+
+	_ "bitbucket.org/Koloo/lgn/docs"
 )
 
+// @title Lgn Api
+
+// @host meetya.io
+// @BasePath /
 func SetupRoutes(db *sql.DB, jwtKey []byte) *echo.Echo {
 	router := echo.New()
 
@@ -29,6 +36,8 @@ func SetupRoutes(db *sql.DB, jwtKey []byte) *echo.Echo {
 	router.Use(middleware.CORSWithConfig(corsConfig))
 
 	log.Info("Setting up routes")
+
+	router.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	{
 		internalGroup := router.Group("/internal")

@@ -26,8 +26,8 @@ func init() {
 func Start() {
 	log.Info("Starting application")
 
-	dbaUser := getEnvOrDefault("DBA_USER", "lng_dba")
-	dbaPassword := getEnvOrDefault("DBA_PASSWORD", "lng_dba")
+	dbaUser := getEnvOrDefault("DBA_USER", "lgn_dba")
+	dbaPassword := getEnvOrDefault("DBA_PASSWORD", "lgn_dba")
 	dbUser := getEnvOrDefault("DB_USER", "lgn")
 	dbPassword := getEnvOrDefault("DB_PASSWORD", "lgn")
 	dbHost := getEnvOrDefault("DB_HOST", "localhost")

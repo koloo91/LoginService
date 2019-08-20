@@ -7,7 +7,7 @@ import (
 	"bitbucket.org/Koloo/lgn/app/service"
 	"context"
 	"database/sql"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/suite"
 

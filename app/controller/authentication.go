@@ -4,11 +4,20 @@ import (
 	"bitbucket.org/Koloo/lgn/app/model"
 	"bitbucket.org/Koloo/lgn/app/service"
 	"database/sql"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
 	"net/http"
 )
 
+// Register godoc
+// @Summary Registers a new user
+// @ID register
+// @Accept json
+// @Produce json
+// @Param registerVo body model.RegisterVo true "register json"
+// @Success 200 {object} model.UserVo
+// @Failure 400 {object} model.HttpError
+// @Router /api/register [post]
 func register(db *sql.DB) echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		var registerVo model.RegisterVo
@@ -28,6 +37,15 @@ func register(db *sql.DB) echo.HandlerFunc {
 	}
 }
 
+// Login godoc
+// @Summary Login a user
+// @ID login
+// @Accept json
+// @Produce json
+// @Param loginVo body model.LoginVo true "login json"
+// @Success 200 {object} model.LoginResultVo
+// @Failure 400 {object} model.HttpError
+// @Router /api/login [post]
 func login(db *sql.DB, jwtKey []byte) echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		var loginVo model.LoginVo
@@ -40,6 +58,6 @@ func login(db *sql.DB, jwtKey []byte) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid credentials")
 		}
 
-		return ctx.JSON(http.StatusOK, map[string]string{"token": token, "type": "Bearer"})
+		return ctx.JSON(http.StatusOK, model.LoginResultVo{Token: token, Type: "Bearer"})
 	}
 }

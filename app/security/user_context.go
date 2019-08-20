@@ -3,7 +3,7 @@ package security
 import (
 	"bitbucket.org/Koloo/lgn/app/model"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type UserContext struct {
