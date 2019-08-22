@@ -44,7 +44,7 @@ func Start() {
 }
 
 func ConnectToDatabase(dbaUser, dbaPassword, dbUser, dbPassword, host, dbName, migrationFilesPath string) *sql.DB {
-	dbaConnectionString := fmt.Sprintf("host=%s user=%s password=%s dbname=postgres sslmode=disable", host, dbaUser, dbaPassword)
+	dbaConnectionString := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, dbaUser, dbaPassword, dbaUser)
 	dbaDb, err := sql.Open("postgres", dbaConnectionString)
 	if err != nil {
 		log.Fatalf("Error opening dba database connection '%s'", err.Error())
