@@ -8,3 +8,4 @@ services:
     environment:
       POSTGRES_USER: lgn_dba
       POSTGRES_PASSWORD: lgn_dba
+      POSTGRES_DB: lgn_dba
