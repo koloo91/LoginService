@@ -1,12 +1,12 @@
 package componenttest
 
 import (
-	"bitbucket.org/Koloo/lgn/app"
-	"bitbucket.org/Koloo/lgn/app/controller"
-	"bitbucket.org/Koloo/lgn/app/model"
-	"bitbucket.org/Koloo/lgn/app/service"
 	"context"
 	"database/sql"
+	"github.com/koloo91/loginservice/app"
+	"github.com/koloo91/loginservice/app/controller"
+	"github.com/koloo91/loginservice/app/model"
+	"github.com/koloo91/loginservice/app/service"
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/suite"

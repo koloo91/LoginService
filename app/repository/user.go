@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"bitbucket.org/Koloo/lgn/app/model"
 	"context"
 	"database/sql"
+	"github.com/koloo91/loginservice/app/model"
 	"strings"
 	"time"
 )

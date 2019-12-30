@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bitbucket.org/Koloo/lgn/app"
+	"github.com/koloo91/loginservice/app"
 )
 
 func main() {

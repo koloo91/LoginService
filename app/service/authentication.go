@@ -1,13 +1,13 @@
 package service
 
 import (
-	"bitbucket.org/Koloo/lgn/app/log"
-	"bitbucket.org/Koloo/lgn/app/model"
-	"bitbucket.org/Koloo/lgn/app/repository"
 	"context"
 	"database/sql"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/koloo91/loginservice/app/log"
+	"github.com/koloo91/loginservice/app/model"
+	"github.com/koloo91/loginservice/app/repository"
 	"golang.org/x/crypto/bcrypt"
 )
 

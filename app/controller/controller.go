@@ -1,16 +1,16 @@
 package controller
 
 import (
-	"bitbucket.org/Koloo/lgn/app/log"
-	"bitbucket.org/Koloo/lgn/app/security"
 	"database/sql"
+	"github.com/koloo91/loginservice/app/log"
+	"github.com/koloo91/loginservice/app/security"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"net/http"
 
-	_ "bitbucket.org/Koloo/lgn/docs"
+	_ "github.com/koloo91/loginservice/docs"
 )
 
 // @title Lgn Api

@@ -1,14 +1,14 @@
 package app
 
 import (
-	"bitbucket.org/Koloo/lgn/app/controller"
-	"bitbucket.org/Koloo/lgn/app/log"
 	"database/sql"
 	"fmt"
 	"github.com/golang-migrate/migrate"
 	"github.com/golang-migrate/migrate/database/postgres"
 	_ "github.com/golang-migrate/migrate/database/postgres"
 	_ "github.com/golang-migrate/migrate/source/file"
+	"github.com/koloo91/loginservice/app/controller"
+	"github.com/koloo91/loginservice/app/log"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 

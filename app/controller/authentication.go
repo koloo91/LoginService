@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"bitbucket.org/Koloo/lgn/app/model"
-	"bitbucket.org/Koloo/lgn/app/service"
 	"database/sql"
+	"github.com/koloo91/loginservice/app/model"
+	"github.com/koloo91/loginservice/app/service"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
 	"net/http"

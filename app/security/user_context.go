@@ -1,8 +1,8 @@
 package security
 
 import (
-	"bitbucket.org/Koloo/lgn/app/model"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/koloo91/loginservice/app/model"
 	"github.com/labstack/echo/v4"
 )
 

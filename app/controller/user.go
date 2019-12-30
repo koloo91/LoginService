@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"bitbucket.org/Koloo/lgn/app/security"
-	"bitbucket.org/Koloo/lgn/app/service"
 	"database/sql"
 	"fmt"
+	"github.com/koloo91/loginservice/app/security"
+	"github.com/koloo91/loginservice/app/service"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
