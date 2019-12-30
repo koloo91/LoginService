@@ -5,22 +5,23 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/koloo91/loginservice/app/log"
 	"github.com/koloo91/loginservice/app/model"
 	"github.com/koloo91/loginservice/app/repository"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 )
 
 func Register(ctx context.Context, db *sql.DB, registerVo *model.RegisterVo) (*model.UserVo, error) {
 	hashedPassword, err := hashPassword(registerVo.Password)
 	if err != nil {
-		log.Errorf("error hashing password '%s'", err.Error())
+
+		log.Printf("error hashing password '%s'", err.Error())
 		return nil, err
 	}
 
 	user := model.NewUser(registerVo.Name, hashedPassword)
 	if err := repository.CreateUser(ctx, db, user); err != nil {
-		log.Errorf("error creating user '%s'", err.Error())
+		log.Printf("error creating user '%s'", err.Error())
 		return nil, err
 	}
 
@@ -30,12 +31,12 @@ func Register(ctx context.Context, db *sql.DB, registerVo *model.RegisterVo) (*m
 func Login(ctx context.Context, db *sql.DB, jwtKey []byte, loginVo *model.LoginVo) (string, error) {
 	user, err := repository.GetUserByName(ctx, db, loginVo.Name)
 	if err != nil {
-		log.Errorf("error getting user by name '%s'", err.Error())
+		log.Printf("error getting user by name '%s'", err.Error())
 		return "", err
 	}
 
 	if err := checkPasswordHash(loginVo.Password, user.PasswordHash); err != nil {
-		log.Errorf("error checking passwords '%s'", err.Error())
+		log.Printf("error checking passwords '%s'", err.Error())
 		return "", fmt.Errorf("invalid credentials")
 	}
 
@@ -47,7 +48,7 @@ func Login(ctx context.Context, db *sql.DB, jwtKey []byte, loginVo *model.LoginV
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
-		log.Errorf("error signing token '%s'", err.Error())
+		log.Printf("error signing token '%s'", err.Error())
 		return "", err
 	}
 
@@ -61,4 +62,14 @@ func hashPassword(password string) (string, error) {
 
 func checkPasswordHash(password, hash string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+}
+
+func GetUserById(ctx context.Context, db *sql.DB, id string) (*model.UserVo, error) {
+	foundUser, err := repository.GetUserById(ctx, db, id)
+	if err != nil {
+		log.Printf("error hashing password '%s'", err.Error())
+		return nil, err
+	}
+
+	return model.UserToVo(foundUser), nil
 }

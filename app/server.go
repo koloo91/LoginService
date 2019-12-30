@@ -8,9 +8,9 @@ import (
 	_ "github.com/golang-migrate/migrate/database/postgres"
 	_ "github.com/golang-migrate/migrate/source/file"
 	"github.com/koloo91/loginservice/app/controller"
-	"github.com/koloo91/loginservice/app/log"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
+	"log"
 
 	"os"
 	"time"
@@ -24,7 +24,7 @@ func init() {
 }
 
 func Start() {
-	log.Info("Starting application")
+	log.Println("Starting application")
 
 	dbaUser := getEnvOrDefault("DBA_USER", "lgn_dba")
 	dbaPassword := getEnvOrDefault("DBA_PASSWORD", "lgn_dba")
@@ -38,7 +38,7 @@ func Start() {
 	router := controller.SetupRoutes(db, jwtKey)
 
 	port := getEnvOrDefault("PORT", "8080")
-	log.Infof("Starting http server on port %s", port)
+	log.Printf("Starting http server on port %s", port)
 
 	log.Fatal(router.Start(fmt.Sprintf(":%s", port)))
 }
@@ -82,7 +82,7 @@ func ConnectToDatabase(dbaUser, dbaPassword, dbUser, dbPassword, host, dbName, m
 		log.Fatal("Error migrating database ", err)
 	}
 
-	log.Infof("Connected to database '%s' with user '%s'", host, dbUser)
+	log.Printf("Connected to database '%s' with user '%s'", host, dbUser)
 
 	db.SetConnMaxLifetime(5 * time.Minute)
 	db.SetMaxIdleConns(10)

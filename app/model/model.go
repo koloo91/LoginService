@@ -1,9 +1,35 @@
 package model
 
 import (
+	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"time"
 )
+
+type UserClaim struct {
+	jwt.StandardClaims
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type HttpError struct {
+	Message string `json:"message"`
+}
+
+type LoginVo struct {
+	Name     string `json:"name"`
+	Password string `json:"password"`
+}
+
+type LoginResultVo struct {
+	Token string `json:"token"`
+	Type  string `json:"type"`
+}
+
+type RegisterVo struct {
+	Name     string `json:"name"`
+	Password string `json:"password"`
+}
 
 type User struct {
 	Id           string
