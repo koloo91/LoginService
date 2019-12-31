@@ -43,7 +43,7 @@ func (suite *ComponentTestSuite) TestRegisterUserWithExistingShouldFail() {
 	suite.Equal(http.StatusBadRequest, secondRecorder.Code)
 
 	var registerResponse map[string]interface{}
-	suite.Nil(json.NewDecoder(secondRecorder.Body).Decode(&registerResponse))
+	_ = json.Unmarshal(secondRecorder.Body.Bytes(), &registerResponse)
 
 	suite.Equal("duplicate key value violates unique constraint \"user_name_uindex\"", registerResponse["message"])
 }

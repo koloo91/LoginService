@@ -5,6 +5,23 @@
         "license": {}
     },
     "paths": {
+        "/api/alive": {
+            "get": {
+                "produces": [
+                    "text/plain"
+                ],
+                "summary": "Checks if the service is running",
+                "operationId": "alive",
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/login": {
             "post": {
                 "consumes": [
@@ -36,6 +53,34 @@
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorVo"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/profile": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Returns the profile of the logged in user",
+                "operationId": "profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.UserClaim"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/model.ErrorVo"
                         }
@@ -120,6 +165,23 @@
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserClaim": {
+            "type": "object",
+            "properties": {
+                "created": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updated": {
                     "type": "string"
                 }
             }

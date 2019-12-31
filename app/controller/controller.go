@@ -2,17 +2,16 @@ package controller
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/koloo91/loginservice/app/model"
+	"github.com/koloo91/loginservice/app/security"
 	"github.com/koloo91/loginservice/app/service"
+	_ "github.com/koloo91/loginservice/docs"
 	"github.com/lib/pq"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"log"
 	"net/http"
-
-	_ "github.com/koloo91/loginservice/docs"
 )
 
 func SetupRoutes(db *sql.DB, jwtKey []byte) *gin.Engine {
@@ -26,12 +25,7 @@ func SetupRoutes(db *sql.DB, jwtKey []byte) *gin.Engine {
 		apiGroup := router.Group("/api")
 		apiGroup.POST("/register", register(db))
 		apiGroup.POST("/login", login(db, jwtKey))
-		apiGroup.GET("/users/:id", getUserById(db))
-
-		// TODO:
-		// apiGroup.Use(middleware.JWTWithConfig(middleware.JWTConfig{SigningKey: jwtKey}))
-		// apiGroup.Use(appMiddleware.UserContextMiddleware)
-		apiGroup.GET("/profile", profile())
+		apiGroup.GET("/profile", security.JwtMiddleware(jwtKey), profile())
 
 		apiGroup.GET("/alive", alive())
 	}
@@ -73,10 +67,10 @@ func register(db *sql.DB) gin.HandlerFunc {
 		userVo, err := service.Register(ctx.Request.Context(), db, &registerVo)
 		if err != nil {
 			if err, ok := err.(*pq.Error); ok {
-				ctx.JSON(http.StatusBadRequest, err.Message)
+				ctx.JSON(http.StatusBadRequest, model.ErrorVo{Message: err.Message})
 				return
 			}
-			ctx.JSON(http.StatusBadRequest, err.Error())
+			ctx.JSON(http.StatusBadRequest, model.ErrorVo{Message: err.Error()})
 			return
 		}
 
@@ -97,13 +91,13 @@ func login(db *sql.DB, jwtKey []byte) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var loginVo model.LoginVo
 		if err := ctx.ShouldBindJSON(&loginVo); err != nil {
-			ctx.JSON(http.StatusBadRequest, "Invalid json")
+			ctx.JSON(http.StatusBadRequest, model.ErrorVo{Message: "invalid json"})
 			return
 		}
 
 		token, err := service.Login(ctx.Request.Context(), db, jwtKey, &loginVo)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, "Invalid credentials")
+			ctx.JSON(http.StatusBadRequest, model.ErrorVo{Message: "invalid credentials"})
 			return
 		}
 
@@ -111,32 +105,34 @@ func login(db *sql.DB, jwtKey []byte) gin.HandlerFunc {
 	}
 }
 
+// Profile godoc
+// @Summary Returns the profile of the logged in user
+// @ID profile
+// @Security ApiKeyAuth
+// @Produce json
+// @Success 200 {object} model.UserClaim
+// @Failure 401 {object} model.ErrorVo
+// @Router /api/profile [get]
 func profile() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		//user := ctx.(appMiddleware.UserContext).GetUser()
-		ctx.JSON(http.StatusOK, "")
+		user := security.GetUserFromContext(ctx)
+		ctx.JSON(http.StatusOK, model.UserVo{
+			Id:      user.Id,
+			Name:    user.Name,
+			Created: user.Created,
+			Updated: user.Updated,
+		})
 	}
 }
 
-func getUserById(db *sql.DB) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		userId := ctx.Param("id")
-
-		foundUser, err := service.GetUserById(ctx.Request.Context(), db, userId)
-		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, fmt.Sprintf("user with id '%s' not found", userId))
-			return
-		} else if err != nil {
-			ctx.JSON(http.StatusBadRequest, err.Error())
-			return
-		}
-
-		ctx.JSON(http.StatusOK, foundUser)
-	}
-}
-
+// Alive godoc
+// @Summary Checks if the service is running
+// @ID alive
+// @Produce text/plain
+// @Success 204 {string} string	""
+// @Router /api/alive [get]
 func alive() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		ctx.String(http.StatusOK, "")
+		ctx.String(http.StatusNoContent, "")
 	}
 }

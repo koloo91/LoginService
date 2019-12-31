@@ -7,6 +7,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/koloo91/loginservice/app/model"
 	"github.com/koloo91/loginservice/app/repository"
+	"github.com/koloo91/loginservice/app/security"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 )
@@ -40,9 +41,11 @@ func Login(ctx context.Context, db *sql.DB, jwtKey []byte, loginVo *model.LoginV
 		return "", fmt.Errorf("invalid credentials")
 	}
 
-	claims := &model.UserClaim{
-		Id:   user.Id,
-		Name: user.Name,
+	claims := &security.UserClaim{
+		Id:      user.Id,
+		Name:    user.Name,
+		Created: user.Created,
+		Updated: user.Updated,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

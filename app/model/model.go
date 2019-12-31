@@ -1,16 +1,9 @@
 package model
 
 import (
-	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"time"
 )
-
-type UserClaim struct {
-	jwt.StandardClaims
-	Id   string `json:"id"`
-	Name string `json:"name"`
-}
 
 type ErrorVo struct {
 	Message string `json:"message"`

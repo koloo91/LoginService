@@ -3,6 +3,7 @@ package integration_tests
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 )
@@ -27,6 +28,7 @@ func (suite *ComponentTestSuite) TestShouldReturnUserProfileSuccessful() {
 
 	profileRecorder := httptest.NewRecorder()
 	profileRequest, _ := http.NewRequest(http.MethodGet, "/api/profile", nil)
+	profileRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", loginResponse["token"]))
 	suite.router.ServeHTTP(profileRecorder, profileRequest)
 
 	var profileResponse map[string]interface{}

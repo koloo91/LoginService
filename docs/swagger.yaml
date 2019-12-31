@@ -25,6 +25,17 @@ definitions:
       password:
         type: string
     type: object
+  model.UserClaim:
+    properties:
+      created:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated:
+        type: string
+    type: object
   model.UserVo:
     properties:
       created:
@@ -40,6 +51,17 @@ info:
   contact: {}
   license: {}
 paths:
+  /api/alive:
+    get:
+      operationId: alive
+      produces:
+      - text/plain
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      summary: Checks if the service is running
   /api/login:
     post:
       consumes:
@@ -65,6 +87,23 @@ paths:
           schema:
             $ref: '#/definitions/model.ErrorVo'
       summary: Login a user
+  /api/profile:
+    get:
+      operationId: profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UserClaim'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorVo'
+      security:
+      - ApiKeyAuth: []
+      summary: Returns the profile of the logged in user
   /api/register:
     post:
       consumes:

@@ -39,5 +39,5 @@ func (suite *ComponentTestSuite) TestLoginUserShouldFail() {
 	var loginResponse map[string]interface{}
 	suite.Nil(json.NewDecoder(recorder.Body).Decode(&loginResponse))
 
-	suite.Equal("Invalid credentials", loginResponse["message"])
+	suite.Equal("invalid credentials", loginResponse["message"])
 }
