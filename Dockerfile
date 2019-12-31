@@ -1,6 +1,8 @@
-FROM golang:1.13.4-alpine AS goBuilder
+FROM golang:1.13.5-alpine AS goBuilder
 WORKDIR /builder
-ADD backend .
+ADD backend/ .
+#RUN apk update && apk add --no-cache git
+#RUN go version
 RUN go build -o lgn
 
 FROM alpine

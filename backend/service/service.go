@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/koloo91/loginservice/backend/model"
-	"github.com/koloo91/loginservice/backend/repository"
-	"github.com/koloo91/loginservice/backend/security"
+	"github.com/koloo91/loginservice/model"
+	"github.com/koloo91/loginservice/repository"
+	"github.com/koloo91/loginservice/security"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 )

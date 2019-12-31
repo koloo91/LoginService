@@ -22,9 +22,9 @@ increment-version:
 
 .PHONY: build-docker
 build-docker:
-	docker build -t koloooo/${APP_NAME}:${CURRENT_VERSION} -t koloooo/mbb:latest .
+	docker build -t koloooo/${APP_NAME}:${CURRENT_VERSION} -t koloooo/${APP_NAME}:latest .
 
 .PHONY: push-docker
 push-docker:
 	docker push koloooo/${APP_NAME}:${CURRENT_VERSION}
-	docker push koloooo/mbb:latest
+	docker push koloooo/${APP_NAME}:latest
