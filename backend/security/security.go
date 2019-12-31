@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/koloo91/loginservice/app/model"
+	"github.com/koloo91/loginservice/backend/model"
 	"log"
 	"net/http"
 	"strings"

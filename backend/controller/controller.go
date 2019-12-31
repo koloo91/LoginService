@@ -3,10 +3,10 @@ package controller
 import (
 	"database/sql"
 	"github.com/gin-gonic/gin"
-	"github.com/koloo91/loginservice/app/model"
-	"github.com/koloo91/loginservice/app/security"
-	"github.com/koloo91/loginservice/app/service"
-	_ "github.com/koloo91/loginservice/docs"
+	_ "github.com/koloo91/loginservice/backend/docs"
+	"github.com/koloo91/loginservice/backend/model"
+	"github.com/koloo91/loginservice/backend/security"
+	"github.com/koloo91/loginservice/backend/service"
 	"github.com/lib/pq"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -110,7 +110,7 @@ func login(db *sql.DB, jwtKey []byte) gin.HandlerFunc {
 // @ID profile
 // @Security ApiKeyAuth
 // @Produce json
-// @Success 200 {object} model.UserClaim
+// @Success 200 {object} security.UserClaim
 // @Failure 401 {object} model.ErrorVo
 // @Router /api/profile [get]
 func profile() gin.HandlerFunc {
