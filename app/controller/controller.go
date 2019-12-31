@@ -65,7 +65,7 @@ func unhandledErrorHandler() gin.HandlerFunc {
 func register(db *sql.DB) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var registerVo model.RegisterVo
-		if err := ctx.Bind(&registerVo); err != nil {
+		if err := ctx.ShouldBindJSON(&registerVo); err != nil {
 			ctx.JSON(http.StatusBadRequest, "Invalid json")
 			return
 		}
@@ -96,7 +96,7 @@ func register(db *sql.DB) gin.HandlerFunc {
 func login(db *sql.DB, jwtKey []byte) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var loginVo model.LoginVo
-		if err := ctx.Bind(&loginVo); err != nil {
+		if err := ctx.ShouldBindJSON(&loginVo); err != nil {
 			ctx.JSON(http.StatusBadRequest, "Invalid json")
 			return
 		}

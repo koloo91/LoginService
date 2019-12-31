@@ -8,17 +8,16 @@ import (
 )
 
 func (suite *ComponentTestSuite) TestRegisterUserSuccessful() {
-	body := bytes.NewBuffer([]byte(`{"name": "kolo", "password": "Pass00"}`))
+	body := []byte(`{"name": "kolo", "password": "Pass00"}`)
 
-	request, _ := http.NewRequest(http.MethodPost, "/api/register", body)
+	request, _ := http.NewRequest(http.MethodPost, "/api/register", bytes.NewBuffer(body))
 	recorder := httptest.NewRecorder()
-
 	suite.router.ServeHTTP(recorder, request)
 
 	suite.Equal(http.StatusCreated, recorder.Code)
 
 	var registerResponse map[string]interface{}
-	suite.Nil(json.Unmarshal(recorder.Body.Bytes(), &registerResponse))
+	_ = json.Unmarshal(recorder.Body.Bytes(), &registerResponse)
 
 	suite.True(len(registerResponse["id"].(string)) > 0)
 	suite.Equal("kolo", registerResponse["name"])
