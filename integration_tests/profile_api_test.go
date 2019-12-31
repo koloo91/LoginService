@@ -1,10 +1,8 @@
-package componenttest
+package integration_tests
 
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
-	"github.com/labstack/echo"
 	"net/http"
 	"net/http/httptest"
 )
@@ -16,7 +14,6 @@ func (suite *ComponentTestSuite) TestShouldReturnUserProfileSuccessful() {
 
 	recorder := httptest.NewRecorder()
 	request, _ := http.NewRequest(http.MethodPost, "/api/login", body)
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.router.ServeHTTP(recorder, request)
 
@@ -30,8 +27,6 @@ func (suite *ComponentTestSuite) TestShouldReturnUserProfileSuccessful() {
 
 	profileRecorder := httptest.NewRecorder()
 	profileRequest, _ := http.NewRequest(http.MethodGet, "/api/profile", nil)
-	profileRequest.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	profileRequest.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %s", loginResponse["token"].(string)))
 	suite.router.ServeHTTP(profileRecorder, profileRequest)
 
 	var profileResponse map[string]interface{}

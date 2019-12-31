@@ -3,40 +3,24 @@ package controller
 import (
 	"database/sql"
 	"fmt"
-	appMiddleware "github.com/koloo91/loginservice/app/middleware"
+	"github.com/gin-gonic/gin"
 	"github.com/koloo91/loginservice/app/model"
 	"github.com/koloo91/loginservice/app/service"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/lib/pq"
-	echoSwagger "github.com/swaggo/echo-swagger"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"log"
 	"net/http"
 
 	_ "github.com/koloo91/loginservice/docs"
 )
 
-func SetupRoutes(db *sql.DB, jwtKey []byte) *echo.Echo {
-	router := echo.New()
-
-	router.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: `{"time":"${time_rfc3339_nano}","id":"${id}","remote_ip":"${remote_ip}",` +
-			`"host":"${host}","method":"${method}","uri":"${uri}","user_agent":"${user_agent}",` +
-			`"status":${status},"error":"${error}","latency":${latency},"latency_human":"${latency_human}"` +
-			`,"bytes_in":${bytes_in},"bytes_out":${bytes_out},"service":"lgn"}` + "\n",
-	}))
-
-	router.Use(middleware.Recover())
-	router.Use(middleware.CORS())
-
-	corsConfig := middleware.DefaultCORSConfig
-	corsConfig.AllowMethods = append(middleware.DefaultCORSConfig.AllowMethods, http.MethodOptions)
-
-	router.Use(middleware.CORSWithConfig(corsConfig))
+func SetupRoutes(db *sql.DB, jwtKey []byte) *gin.Engine {
+	router := gin.New()
+	router.Use(gin.Logger())
+	router.Use(unhandledErrorHandler())
 
 	log.Println("Setting up routes")
-
-	router.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	{
 		apiGroup := router.Group("/api")
@@ -44,14 +28,29 @@ func SetupRoutes(db *sql.DB, jwtKey []byte) *echo.Echo {
 		apiGroup.POST("/login", login(db, jwtKey))
 		apiGroup.GET("/users/:id", getUserById(db))
 
-		apiGroup.Use(middleware.JWTWithConfig(middleware.JWTConfig{SigningKey: jwtKey}))
-		apiGroup.Use(appMiddleware.UserContextMiddleware)
+		// TODO:
+		// apiGroup.Use(middleware.JWTWithConfig(middleware.JWTConfig{SigningKey: jwtKey}))
+		// apiGroup.Use(appMiddleware.UserContextMiddleware)
 		apiGroup.GET("/profile", profile())
 
 		apiGroup.GET("/alive", alive())
 	}
 
+	router.GET("/swagger/*any", ginSwagger.DisablingWrapHandler(swaggerFiles.Handler, "GIN_MODE"))
+
 	return router
+}
+
+func unhandledErrorHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		defer func() {
+			if err := recover(); err != nil {
+				log.Println(err)
+				ctx.AbortWithStatusJSON(http.StatusBadRequest, model.ErrorVo{Message: "unexpected error"})
+			}
+		}()
+		ctx.Next()
+	}
 }
 
 // Register godoc
@@ -61,24 +60,27 @@ func SetupRoutes(db *sql.DB, jwtKey []byte) *echo.Echo {
 // @Produce json
 // @Param registerVo body model.RegisterVo true "register json"
 // @Success 200 {object} model.UserVo
-// @Failure 400 {object} model.HttpError
+// @Failure 400 {object} model.ErrorVo
 // @Router /api/register [post]
-func register(db *sql.DB) echo.HandlerFunc {
-	return func(ctx echo.Context) error {
+func register(db *sql.DB) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
 		var registerVo model.RegisterVo
 		if err := ctx.Bind(&registerVo); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, "Invalid json")
+			ctx.JSON(http.StatusBadRequest, "Invalid json")
+			return
 		}
 
-		userVo, err := service.Register(ctx.Request().Context(), db, &registerVo)
+		userVo, err := service.Register(ctx.Request.Context(), db, &registerVo)
 		if err != nil {
 			if err, ok := err.(*pq.Error); ok {
-				return echo.NewHTTPError(http.StatusBadRequest, err.Message)
+				ctx.JSON(http.StatusBadRequest, err.Message)
+				return
 			}
-			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+			ctx.JSON(http.StatusBadRequest, err.Error())
+			return
 		}
 
-		return ctx.JSON(http.StatusCreated, userVo)
+		ctx.JSON(http.StatusCreated, userVo)
 	}
 }
 
@@ -89,48 +91,52 @@ func register(db *sql.DB) echo.HandlerFunc {
 // @Produce json
 // @Param loginVo body model.LoginVo true "login json"
 // @Success 200 {object} model.LoginResultVo
-// @Failure 400 {object} model.HttpError
+// @Failure 400 {object} model.ErrorVo
 // @Router /api/login [post]
-func login(db *sql.DB, jwtKey []byte) echo.HandlerFunc {
-	return func(ctx echo.Context) error {
+func login(db *sql.DB, jwtKey []byte) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
 		var loginVo model.LoginVo
 		if err := ctx.Bind(&loginVo); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, "Invalid json")
+			ctx.JSON(http.StatusBadRequest, "Invalid json")
+			return
 		}
 
-		token, err := service.Login(ctx.Request().Context(), db, jwtKey, &loginVo)
+		token, err := service.Login(ctx.Request.Context(), db, jwtKey, &loginVo)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, "Invalid credentials")
+			ctx.JSON(http.StatusBadRequest, "Invalid credentials")
+			return
 		}
 
-		return ctx.JSON(http.StatusOK, model.LoginResultVo{Token: token, Type: "Bearer"})
+		ctx.JSON(http.StatusOK, model.LoginResultVo{Token: token, Type: "Bearer"})
 	}
 }
 
-func profile() echo.HandlerFunc {
-	return func(ctx echo.Context) error {
-		user := ctx.(appMiddleware.UserContext).GetUser()
-		return ctx.JSON(http.StatusOK, user)
+func profile() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		//user := ctx.(appMiddleware.UserContext).GetUser()
+		ctx.JSON(http.StatusOK, "")
 	}
 }
 
-func getUserById(db *sql.DB) echo.HandlerFunc {
-	return func(ctx echo.Context) error {
+func getUserById(db *sql.DB) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
 		userId := ctx.Param("id")
 
-		foundUser, err := service.GetUserById(ctx.Request().Context(), db, userId)
+		foundUser, err := service.GetUserById(ctx.Request.Context(), db, userId)
 		if err == sql.ErrNoRows {
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("user with id '%s' not found", userId))
+			ctx.JSON(http.StatusNotFound, fmt.Sprintf("user with id '%s' not found", userId))
+			return
 		} else if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+			ctx.JSON(http.StatusBadRequest, err.Error())
+			return
 		}
 
-		return ctx.JSON(http.StatusOK, foundUser)
+		ctx.JSON(http.StatusOK, foundUser)
 	}
 }
 
-func alive() echo.HandlerFunc {
-	return func(ctx echo.Context) error {
-		return ctx.HTML(http.StatusNoContent, "")
+func alive() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.String(http.StatusOK, "")
 	}
 }

@@ -1,9 +1,8 @@
-package componenttest
+package integration_tests
 
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/labstack/echo"
 	"net/http"
 	"net/http/httptest"
 )
@@ -11,16 +10,15 @@ import (
 func (suite *ComponentTestSuite) TestRegisterUserSuccessful() {
 	body := bytes.NewBuffer([]byte(`{"name": "kolo", "password": "Pass00"}`))
 
-	recorder := httptest.NewRecorder()
 	request, _ := http.NewRequest(http.MethodPost, "/api/register", body)
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	recorder := httptest.NewRecorder()
 
 	suite.router.ServeHTTP(recorder, request)
 
 	suite.Equal(http.StatusCreated, recorder.Code)
 
 	var registerResponse map[string]interface{}
-	suite.Nil(json.NewDecoder(recorder.Body).Decode(&registerResponse))
+	suite.Nil(json.Unmarshal(recorder.Body.Bytes(), &registerResponse))
 
 	suite.True(len(registerResponse["id"].(string)) > 0)
 	suite.Equal("kolo", registerResponse["name"])
@@ -33,7 +31,6 @@ func (suite *ComponentTestSuite) TestRegisterUserWithExistingShouldFail() {
 
 	firstRecorder := httptest.NewRecorder()
 	firstRequest, _ := http.NewRequest(http.MethodPost, "/api/register", firstBody)
-	firstRequest.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.router.ServeHTTP(firstRecorder, firstRequest)
 	suite.Equal(http.StatusCreated, firstRecorder.Code)
@@ -42,7 +39,6 @@ func (suite *ComponentTestSuite) TestRegisterUserWithExistingShouldFail() {
 
 	secondRecorder := httptest.NewRecorder()
 	secondRequest, _ := http.NewRequest("POST", "/api/register", secondBody)
-	secondRequest.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.router.ServeHTTP(secondRecorder, secondRequest)
 	suite.Equal(http.StatusBadRequest, secondRecorder.Code)

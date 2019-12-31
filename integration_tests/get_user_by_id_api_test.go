@@ -1,9 +1,8 @@
-package componenttest
+package integration_tests
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/labstack/echo"
 	"net/http"
 	"net/http/httptest"
 )
@@ -13,7 +12,6 @@ func (suite *ComponentTestSuite) TestGetUserByIdSuccessful() {
 
 	recorder := httptest.NewRecorder()
 	request, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/users/%s", user.Id), nil)
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.router.ServeHTTP(recorder, request)
 
@@ -30,7 +28,6 @@ func (suite *ComponentTestSuite) TestGetUserByIdShouldReturnNotFound() {
 
 	recorder := httptest.NewRecorder()
 	request, _ := http.NewRequest(http.MethodGet, "/api/users/foo", nil)
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.router.ServeHTTP(recorder, request)
 

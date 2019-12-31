@@ -1,9 +1,8 @@
-package componenttest
+package integration_tests
 
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/labstack/echo"
 	"net/http"
 	"net/http/httptest"
 )
@@ -15,7 +14,6 @@ func (suite *ComponentTestSuite) TestLoginUserSuccessful() {
 
 	recorder := httptest.NewRecorder()
 	request, _ := http.NewRequest(http.MethodPost, "/api/login", body)
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.router.ServeHTTP(recorder, request)
 
@@ -33,7 +31,6 @@ func (suite *ComponentTestSuite) TestLoginUserShouldFail() {
 
 	recorder := httptest.NewRecorder()
 	request, _ := http.NewRequest(http.MethodPost, "/api/login", body)
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.router.ServeHTTP(recorder, request)
 

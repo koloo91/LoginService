@@ -12,7 +12,7 @@ type UserClaim struct {
 	Name string `json:"name"`
 }
 
-type HttpError struct {
+type ErrorVo struct {
 	Message string `json:"message"`
 }
 
