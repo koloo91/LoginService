@@ -8,7 +8,7 @@ before_install:
 script:
   - make test-backend
 after_success:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
   - make increment-version
   - make build-docker
   - make push-docker
