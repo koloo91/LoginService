@@ -101,7 +101,7 @@ func login(db *sql.DB, jwtKey []byte) gin.HandlerFunc {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, model.LoginResultVo{Token: token, Type: "Bearer"})
+		ctx.JSON(http.StatusOK, model.LoginResultVo{AccessToken: token, Type: "Bearer"})
 	}
 }
 

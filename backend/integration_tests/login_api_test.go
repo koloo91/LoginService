@@ -22,7 +22,7 @@ func (suite *ComponentTestSuite) TestLoginUserSuccessful() {
 	var loginResponse map[string]interface{}
 	suite.Nil(json.NewDecoder(recorder.Body).Decode(&loginResponse))
 
-	suite.True(len(loginResponse["token"].(string)) > 0)
+	suite.True(len(loginResponse["accessToken"].(string)) > 0)
 	suite.Equal("Bearer", loginResponse["type"])
 }
 

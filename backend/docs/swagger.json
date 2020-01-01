@@ -139,7 +139,7 @@
         "model.LoginResultVo": {
             "type": "object",
             "properties": {
-                "token": {
+                "accessToken": {
                     "type": "string"
                 },
                 "type": {

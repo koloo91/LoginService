@@ -6,7 +6,7 @@ definitions:
     type: object
   model.LoginResultVo:
     properties:
-      token:
+      accessToken:
         type: string
       type:
         type: string
