@@ -14,9 +14,16 @@ type LoginVo struct {
 	Password string `json:"password"`
 }
 
+type LoginResult struct {
+	AccessToken  string
+	RefreshToken string
+	Type         string
+}
+
 type LoginResultVo struct {
-	AccessToken string `json:"accessToken"`
-	Type        string `json:"type"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
+	Type         string `json:"type"`
 }
 
 type RegisterVo struct {

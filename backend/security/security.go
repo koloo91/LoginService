@@ -12,10 +12,16 @@ import (
 )
 
 const (
-	userKey = "user"
+	refreshTokenKey = "refresh_token"
+	accessTokenKey  = "access_token"
 )
 
-type UserClaim struct {
+type RefreshTokenClaim struct {
+	jwt.StandardClaims
+	Id string `json:"id"`
+}
+
+type AccessTokenClaim struct {
 	jwt.StandardClaims
 	Id      string    `json:"id"`
 	Name    string    `json:"name"`
@@ -23,13 +29,13 @@ type UserClaim struct {
 	Updated time.Time `json:"updated"`
 }
 
-func GetUserFromContext(ctx *gin.Context) UserClaim {
-	value, _ := ctx.Get(userKey)
-	userClaim := value.(UserClaim)
-	return userClaim
+func GetAccessTokenFromContext(ctx *gin.Context) AccessTokenClaim {
+	value, _ := ctx.Get(accessTokenKey)
+	accessTokenClaim := value.(AccessTokenClaim)
+	return accessTokenClaim
 }
 
-func JwtMiddleware(jwtKey []byte) gin.HandlerFunc {
+func JwtMiddleware(jwtKey []byte, validateExpirationDate bool) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authorizationHeaderValue := ctx.GetHeader("Authorization")
 		if len(authorizationHeaderValue) == 0 {
@@ -38,10 +44,10 @@ func JwtMiddleware(jwtKey []byte) gin.HandlerFunc {
 			return
 		}
 
-		userClaims := UserClaim{}
+		accessTokenClaims := AccessTokenClaim{}
 
 		tokenString := strings.ReplaceAll(authorizationHeaderValue, "Bearer ", "")
-		token, err := jwt.ParseWithClaims(tokenString, &userClaims, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(tokenString, &accessTokenClaims, func(token *jwt.Token) (interface{}, error) {
 			// Don't forget to validate the alg is what you expect:
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				log.Printf("unexpected signing method: %v", token.Header["alg"])
@@ -63,7 +69,13 @@ func JwtMiddleware(jwtKey []byte) gin.HandlerFunc {
 			return
 		}
 
-		ctx.Set(userKey, userClaims)
+		if validateExpirationDate && time.Unix(accessTokenClaims.ExpiresAt, 0).Sub(time.Now()).Seconds() <= 0 {
+			log.Println("token expired")
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, model.ErrorVo{Message: "token expired"})
+			return
+		}
+
+		ctx.Set(accessTokenKey, accessTokenClaims)
 
 		ctx.Next()
 	}

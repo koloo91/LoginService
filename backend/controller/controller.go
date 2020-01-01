@@ -14,7 +14,7 @@ import (
 	"net/http"
 )
 
-func SetupRoutes(db *sql.DB, jwtKey []byte) *gin.Engine {
+func SetupRoutes(db *sql.DB, jwtKey []byte, validateExpirationDate bool) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(unhandledErrorHandler())
@@ -25,7 +25,7 @@ func SetupRoutes(db *sql.DB, jwtKey []byte) *gin.Engine {
 		apiGroup := router.Group("/api")
 		apiGroup.POST("/register", register(db))
 		apiGroup.POST("/login", login(db, jwtKey))
-		apiGroup.GET("/profile", security.JwtMiddleware(jwtKey), profile())
+		apiGroup.GET("/profile", security.JwtMiddleware(jwtKey, validateExpirationDate), profile())
 
 		apiGroup.GET("/alive", alive())
 	}
@@ -95,13 +95,17 @@ func login(db *sql.DB, jwtKey []byte) gin.HandlerFunc {
 			return
 		}
 
-		token, err := service.Login(ctx.Request.Context(), db, jwtKey, &loginVo)
+		loginResult, err := service.Login(ctx.Request.Context(), db, jwtKey, &loginVo)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, model.ErrorVo{Message: "invalid credentials"})
 			return
 		}
 
-		ctx.JSON(http.StatusOK, model.LoginResultVo{AccessToken: token, Type: "Bearer"})
+		ctx.JSON(http.StatusOK, model.LoginResultVo{
+			AccessToken:  loginResult.AccessToken,
+			RefreshToken: loginResult.RefreshToken,
+			Type:         "Bearer",
+		})
 	}
 }
 
@@ -110,12 +114,12 @@ func login(db *sql.DB, jwtKey []byte) gin.HandlerFunc {
 // @ID profile
 // @Security ApiKeyAuth
 // @Produce json
-// @Success 200 {object} security.UserClaim
+// @Success 200 {object} security.AccessTokenClaim
 // @Failure 401 {object} model.ErrorVo
 // @Router /api/profile [get]
 func profile() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		user := security.GetUserFromContext(ctx)
+		user := security.GetAccessTokenFromContext(ctx)
 		ctx.JSON(http.StatusOK, model.UserVo{
 			Id:      user.Id,
 			Name:    user.Name,

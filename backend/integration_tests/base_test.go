@@ -41,7 +41,7 @@ func (suite *ComponentTestSuite) SetupSuite() {
 	}
 
 	suite.db = db
-	suite.router = controller.SetupRoutes(db, []byte(jwtSecret))
+	suite.router = controller.SetupRoutes(db, []byte(jwtSecret), false)
 }
 
 func (suite *ComponentTestSuite) SetupTest() {
