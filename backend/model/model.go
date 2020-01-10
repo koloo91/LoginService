@@ -9,6 +9,10 @@ type ErrorVo struct {
 	Message string `json:"message"`
 }
 
+type RefreshTokenVo struct {
+	RefreshToken string `json:"refreshToken"`
+}
+
 type LoginVo struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`

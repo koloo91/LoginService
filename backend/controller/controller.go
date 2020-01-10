@@ -2,6 +2,8 @@ package controller
 
 import (
 	"database/sql"
+	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	_ "github.com/koloo91/loginservice/docs"
 	"github.com/koloo91/loginservice/model"
@@ -12,6 +14,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"log"
 	"net/http"
+	"time"
 )
 
 func SetupRoutes(db *sql.DB, jwtKey []byte, validateExpirationDate bool) *gin.Engine {
@@ -23,6 +26,7 @@ func SetupRoutes(db *sql.DB, jwtKey []byte, validateExpirationDate bool) *gin.En
 
 	{
 		apiGroup := router.Group("/api")
+		apiGroup.POST("/token/refresh", refreshToken(db, jwtKey))
 		apiGroup.POST("/register", register(db))
 		apiGroup.POST("/login", login(db, jwtKey))
 		apiGroup.GET("/profile", security.JwtMiddleware(jwtKey, validateExpirationDate), profile())
@@ -44,6 +48,68 @@ func unhandledErrorHandler() gin.HandlerFunc {
 			}
 		}()
 		ctx.Next()
+	}
+}
+
+// Refresh token godoc
+// @Summary Refresh token
+// @ID refresh_token
+// @Accept json
+// @Produce json
+// @Param loginVo body model.RefreshTokenVo true "refresh token json"
+// @Success 200 {object} model.LoginResultVo
+// @Failure 400 {object} model.ErrorVo
+// @Router /api/token/refresh [post]
+func refreshToken(db *sql.DB, jwtKey []byte) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var refreshTokenVo model.RefreshTokenVo
+		if err := ctx.ShouldBindJSON(&refreshTokenVo); err != nil {
+			ctx.JSON(http.StatusBadRequest, "Invalid json")
+			return
+		}
+
+		refreshTokenClaim := security.RefreshTokenClaim{}
+
+		token, err := jwt.ParseWithClaims(refreshTokenVo.RefreshToken, &refreshTokenClaim, func(token *jwt.Token) (interface{}, error) {
+			// Don't forget to validate the alg is what you expect:
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				log.Printf("unexpected signing method: %v", token.Header["alg"])
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
+
+			return jwtKey, nil
+		})
+
+		if err != nil {
+			log.Println("error parsing token")
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, model.ErrorVo{Message: "unexpected error"})
+			return
+		}
+
+		if !token.Valid {
+			log.Println("invalid token")
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, model.ErrorVo{Message: "invalid token"})
+			return
+		}
+
+		if time.Unix(refreshTokenClaim.ExpiresAt, 0).Sub(time.Now()).Seconds() <= 0 {
+			log.Println("token expired")
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, model.ErrorVo{Message: "token expired"})
+			return
+		}
+
+		loginResult, err := service.Refresh(ctx.Request.Context(), db, jwtKey, refreshTokenClaim)
+
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, model.ErrorVo{Message: "invalid refresh token"})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, model.LoginResultVo{
+			AccessToken:  loginResult.AccessToken,
+			RefreshToken: loginResult.RefreshToken,
+			Type:         "Bearer",
+		})
 	}
 }
 
