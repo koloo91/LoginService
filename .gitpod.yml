@@ -2,3 +2,4 @@ tasks:
   - init: make
 image:
   file: .gitpod.Dockerfile
+workspaceLocation: "backend"
