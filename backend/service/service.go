@@ -10,6 +10,7 @@ import (
 	"github.com/koloo91/loginservice/security"
 	"golang.org/x/crypto/bcrypt"
 	"log"
+	"time"
 )
 
 func Register(ctx context.Context, db *sql.DB, registerVo *model.RegisterVo) (*model.UserVo, error) {
@@ -29,33 +30,99 @@ func Register(ctx context.Context, db *sql.DB, registerVo *model.RegisterVo) (*m
 	return model.UserToVo(user), nil
 }
 
-func Login(ctx context.Context, db *sql.DB, jwtKey []byte, loginVo *model.LoginVo) (string, error) {
+func Login(ctx context.Context, db *sql.DB, jwtKey []byte, loginVo *model.LoginVo) (*model.LoginResult, error) {
 	user, err := repository.GetUserByName(ctx, db, loginVo.Name)
 	if err != nil {
 		log.Printf("error getting user by name '%s'", err.Error())
-		return "", err
+		return nil, err
 	}
 
 	if err := checkPasswordHash(loginVo.Password, user.PasswordHash); err != nil {
 		log.Printf("error checking passwords '%s'", err.Error())
-		return "", fmt.Errorf("invalid credentials")
+		return nil, fmt.Errorf("invalid credentials")
 	}
 
-	claims := &security.UserClaim{
+	refreshTokenClaims := &security.RefreshTokenClaim{
+		Id: user.Id,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(7 * 24 * time.Hour).Unix(),
+		},
+	}
+
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims)
+	refreshTokenString, err := refreshToken.SignedString(jwtKey)
+	if err != nil {
+		log.Printf("error signing refresh token '%s'", err.Error())
+		return nil, err
+	}
+
+	accessTokenClaims := &security.AccessTokenClaim{
 		Id:      user.Id,
 		Name:    user.Name,
 		Created: user.Created,
 		Updated: user.Updated,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(15 * time.Minute).Unix(),
+		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtKey)
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenClaims)
+	accessTokenString, err := accessToken.SignedString(jwtKey)
 	if err != nil {
-		log.Printf("error signing token '%s'", err.Error())
-		return "", err
+		log.Printf("error signing access token '%s'", err.Error())
+		return nil, err
 	}
 
-	return tokenString, nil
+	return &model.LoginResult{
+		AccessToken:  accessTokenString,
+		RefreshToken: refreshTokenString,
+		Type:         "Bearer",
+	}, nil
+}
+
+func Refresh(ctx context.Context, db *sql.DB, jwtKey []byte, refreshTokenClaim security.RefreshTokenClaim) (*model.LoginResult, error) {
+	user, err := repository.GetUserById(ctx, db, refreshTokenClaim.Id)
+	if err != nil {
+		log.Printf("error getting user by name '%s'", err.Error())
+		return nil, err
+	}
+
+	refreshTokenClaims := &security.RefreshTokenClaim{
+		Id: user.Id,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(7 * 24 * time.Hour).Unix(),
+		},
+	}
+
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims)
+	refreshTokenString, err := refreshToken.SignedString(jwtKey)
+	if err != nil {
+		log.Printf("error signing refresh token '%s'", err.Error())
+		return nil, err
+	}
+
+	accessTokenClaims := &security.AccessTokenClaim{
+		Id:      user.Id,
+		Name:    user.Name,
+		Created: user.Created,
+		Updated: user.Updated,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(15 * time.Minute).Unix(),
+		},
+	}
+
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenClaims)
+	accessTokenString, err := accessToken.SignedString(jwtKey)
+	if err != nil {
+		log.Printf("error signing access token '%s'", err.Error())
+		return nil, err
+	}
+
+	return &model.LoginResult{
+		AccessToken:  accessTokenString,
+		RefreshToken: refreshTokenString,
+		Type:         "Bearer",
+	}, nil
 }
 
 func hashPassword(password string) (string, error) {
@@ -65,14 +132,4 @@ func hashPassword(password string) (string, error) {
 
 func checkPasswordHash(password, hash string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-}
-
-func GetUserById(ctx context.Context, db *sql.DB, id string) (*model.UserVo, error) {
-	foundUser, err := repository.GetUserById(ctx, db, id)
-	if err != nil {
-		log.Printf("error hashing password '%s'", err.Error())
-		return nil, err
-	}
-
-	return model.UserToVo(foundUser), nil
 }

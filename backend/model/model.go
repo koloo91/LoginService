@@ -9,14 +9,25 @@ type ErrorVo struct {
 	Message string `json:"message"`
 }
 
+type RefreshTokenVo struct {
+	RefreshToken string `json:"refreshToken"`
+}
+
 type LoginVo struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
 }
 
+type LoginResult struct {
+	AccessToken  string
+	RefreshToken string
+	Type         string
+}
+
 type LoginResultVo struct {
-	Token string `json:"token"`
-	Type  string `json:"type"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
+	Type         string `json:"type"`
 }
 
 type RegisterVo struct {

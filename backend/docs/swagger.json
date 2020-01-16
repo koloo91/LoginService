@@ -76,7 +76,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/security.UserClaim"
+                            "$ref": "#/definitions/security.AccessTokenClaim"
                         }
                     },
                     "401": {
@@ -125,6 +125,44 @@
                     }
                 }
             }
+        },
+        "/api/token/refresh": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Refresh token",
+                "operationId": "refresh_token",
+                "parameters": [
+                    {
+                        "description": "refresh token json",
+                        "name": "loginVo",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.RefreshTokenVo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.LoginResultVo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorVo"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -139,7 +177,10 @@
         "model.LoginResultVo": {
             "type": "object",
             "properties": {
-                "token": {
+                "accessToken": {
+                    "type": "string"
+                },
+                "refreshToken": {
                     "type": "string"
                 },
                 "type": {
@@ -154,6 +195,14 @@
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.RefreshTokenVo": {
+            "type": "object",
+            "properties": {
+                "refreshToken": {
                     "type": "string"
                 }
             }
@@ -186,7 +235,7 @@
                 }
             }
         },
-        "security.UserClaim": {
+        "security.AccessTokenClaim": {
             "type": "object",
             "properties": {
                 "created": {

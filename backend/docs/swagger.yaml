@@ -6,7 +6,9 @@ definitions:
     type: object
   model.LoginResultVo:
     properties:
-      token:
+      accessToken:
+        type: string
+      refreshToken:
         type: string
       type:
         type: string
@@ -16,6 +18,11 @@ definitions:
       name:
         type: string
       password:
+        type: string
+    type: object
+  model.RefreshTokenVo:
+    properties:
+      refreshToken:
         type: string
     type: object
   model.RegisterVo:
@@ -36,7 +43,7 @@ definitions:
       updated:
         type: string
     type: object
-  security.UserClaim:
+  security.AccessTokenClaim:
     properties:
       created:
         type: string
@@ -96,7 +103,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/security.UserClaim'
+            $ref: '#/definitions/security.AccessTokenClaim'
         "401":
           description: Unauthorized
           schema:
@@ -129,4 +136,29 @@ paths:
           schema:
             $ref: '#/definitions/model.ErrorVo'
       summary: Registers a new user
+  /api/token/refresh:
+    post:
+      consumes:
+      - application/json
+      operationId: refresh_token
+      parameters:
+      - description: refresh token json
+        in: body
+        name: loginVo
+        required: true
+        schema:
+          $ref: '#/definitions/model.RefreshTokenVo'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.LoginResultVo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorVo'
+      summary: Refresh token
 swagger: "2.0"

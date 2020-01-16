@@ -23,12 +23,12 @@ func (suite *ComponentTestSuite) TestShouldReturnUserProfileSuccessful() {
 	var loginResponse map[string]interface{}
 	suite.Nil(json.NewDecoder(recorder.Body).Decode(&loginResponse))
 
-	suite.True(len(loginResponse["token"].(string)) > 0)
+	suite.True(len(loginResponse["accessToken"].(string)) > 0)
 	suite.Equal("Bearer", loginResponse["type"])
 
 	profileRecorder := httptest.NewRecorder()
 	profileRequest, _ := http.NewRequest(http.MethodGet, "/api/profile", nil)
-	profileRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", loginResponse["token"]))
+	profileRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", loginResponse["accessToken"]))
 	suite.router.ServeHTTP(profileRecorder, profileRequest)
 
 	var profileResponse map[string]interface{}
