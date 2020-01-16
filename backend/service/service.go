@@ -42,34 +42,8 @@ func Login(ctx context.Context, db *sql.DB, jwtKey []byte, loginVo *model.LoginV
 		return nil, fmt.Errorf("invalid credentials")
 	}
 
-	refreshTokenClaims := &security.RefreshTokenClaim{
-		Id: user.Id,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(7 * 24 * time.Hour).Unix(),
-		},
-	}
-
-	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims)
-	refreshTokenString, err := refreshToken.SignedString(jwtKey)
+	refreshTokenString, accessTokenString, err := security.GenerateTokenPair(user, jwtKey)
 	if err != nil {
-		log.Printf("error signing refresh token '%s'", err.Error())
-		return nil, err
-	}
-
-	accessTokenClaims := &security.AccessTokenClaim{
-		Id:      user.Id,
-		Name:    user.Name,
-		Created: user.Created,
-		Updated: user.Updated,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(15 * time.Minute).Unix(),
-		},
-	}
-
-	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenClaims)
-	accessTokenString, err := accessToken.SignedString(jwtKey)
-	if err != nil {
-		log.Printf("error signing access token '%s'", err.Error())
 		return nil, err
 	}
 
