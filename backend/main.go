@@ -7,7 +7,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/koloo91/loginservice/backend/controller"
+	"github.com/koloo91/loginservice/controller"
 	_ "github.com/lib/pq"
 	"log"
 	"os"

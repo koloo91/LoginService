@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/koloo91/loginservice/backend/model"
+	"github.com/koloo91/loginservice/model"
 	"log"
 	"net/http"
 	"strings"
@@ -59,7 +59,7 @@ func JwtMiddleware(jwtKey []byte, validateExpirationDate bool) gin.HandlerFunc {
 
 		if err != nil {
 			log.Println("error parsing token")
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, model.ErrorVo{Message: "unexpected error"})
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, model.ErrorVo{Message: "unexpected error"})
 			return
 		}
 
@@ -79,38 +79,4 @@ func JwtMiddleware(jwtKey []byte, validateExpirationDate bool) gin.HandlerFunc {
 
 		ctx.Next()
 	}
-}
-
-func GenerateTokenPair(user *model.User, jwtKey []byte) (string, string, error) {
-	refreshTokenClaims := &RefreshTokenClaim{
-		Id: user.Id,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(7 * 24 * time.Hour).Unix(),
-		},
-	}
-
-	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims)
-	refreshTokenString, err := refreshToken.SignedString(jwtKey)
-	if err != nil {
-		log.Printf("error signing refresh token '%s'", err.Error())
-		return "", "", err
-	}
-
-	accessTokenClaims := &AccessTokenClaim{
-		Id:      user.Id,
-		Name:    user.Name,
-		Created: user.Created,
-		Updated: user.Updated,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(15 * time.Minute).Unix(),
-		},
-	}
-
-	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenClaims)
-	accessTokenString, err := accessToken.SignedString(jwtKey)
-	if err != nil {
-		log.Printf("error signing access token '%s'", err.Error())
-		return "", "", err
-	}
-	return refreshTokenString, accessTokenString, nil
 }
