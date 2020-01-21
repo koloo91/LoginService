@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"github.com/koloo91/loginservice/backend/model"
+	"github.com/koloo91/loginservice/model"
 	"strings"
 	"time"
 )
