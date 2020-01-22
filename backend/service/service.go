@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/koloo91/jwt-security"
 	"github.com/koloo91/loginservice/model"
 	"github.com/koloo91/loginservice/repository"
-	"github.com/koloo91/loginservice/security"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"time"
@@ -42,7 +42,7 @@ func Login(ctx context.Context, db *sql.DB, jwtKey []byte, loginVo *model.LoginV
 		return nil, fmt.Errorf("invalid credentials")
 	}
 
-	refreshTokenClaims := &security.RefreshTokenClaim{
+	refreshTokenClaims := &jwtsecurity.RefreshTokenClaim{
 		Id: user.Id,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(7 * 24 * time.Hour).Unix(),
@@ -56,7 +56,7 @@ func Login(ctx context.Context, db *sql.DB, jwtKey []byte, loginVo *model.LoginV
 		return nil, err
 	}
 
-	accessTokenClaims := &security.AccessTokenClaim{
+	accessTokenClaims := &jwtsecurity.AccessTokenClaim{
 		Id:      user.Id,
 		Name:    user.Name,
 		Created: user.Created,
@@ -80,14 +80,14 @@ func Login(ctx context.Context, db *sql.DB, jwtKey []byte, loginVo *model.LoginV
 	}, nil
 }
 
-func Refresh(ctx context.Context, db *sql.DB, jwtKey []byte, refreshTokenClaim security.RefreshTokenClaim) (*model.LoginResult, error) {
+func Refresh(ctx context.Context, db *sql.DB, jwtKey []byte, refreshTokenClaim jwtsecurity.RefreshTokenClaim) (*model.LoginResult, error) {
 	user, err := repository.GetUserById(ctx, db, refreshTokenClaim.Id)
 	if err != nil {
 		log.Printf("error getting user by name '%s'", err.Error())
 		return nil, err
 	}
 
-	refreshTokenClaims := &security.RefreshTokenClaim{
+	refreshTokenClaims := &jwtsecurity.RefreshTokenClaim{
 		Id: user.Id,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(7 * 24 * time.Hour).Unix(),
@@ -101,7 +101,7 @@ func Refresh(ctx context.Context, db *sql.DB, jwtKey []byte, refreshTokenClaim s
 		return nil, err
 	}
 
-	accessTokenClaims := &security.AccessTokenClaim{
+	accessTokenClaims := &jwtsecurity.AccessTokenClaim{
 		Id:      user.Id,
 		Name:    user.Name,
 		Created: user.Created,

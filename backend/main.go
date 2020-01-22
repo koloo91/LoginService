@@ -11,7 +11,6 @@ import (
 	_ "github.com/lib/pq"
 	"log"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -21,8 +20,7 @@ var (
 	dbPassword = getEnvOrDefault("DB_PASSWORD", "")
 	dbName     = getEnvOrDefault("DB_NAME", "postgres")
 
-	jwtKey                    = []byte(getEnvOrDefault("JWT_KEY", "s3cr3t"))
-	validateExpirationDate, _ = strconv.ParseBool(getEnvOrDefault("VALIDATE_EXPIRATION_DATE", "true"))
+	jwtKey = []byte(getEnvOrDefault("JWT_KEY", "s3cr3t"))
 )
 
 func main() {
@@ -48,7 +46,7 @@ func main() {
 	db.SetMaxIdleConns(2)
 	db.SetMaxOpenConns(2)
 
-	router := controller.SetupRoutes(db, jwtKey, validateExpirationDate)
+	router := controller.SetupRoutes(db, jwtKey)
 
 	router.NoRoute(func(ctx *gin.Context) {
 		ctx.File("./assets/index.html")

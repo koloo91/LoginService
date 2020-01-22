@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	jwtsecurity "github.com/koloo91/jwt-security"
 	_ "github.com/koloo91/loginservice/docs"
 	"github.com/koloo91/loginservice/model"
-	"github.com/koloo91/loginservice/security"
 	"github.com/koloo91/loginservice/service"
 	"github.com/lib/pq"
 	swaggerFiles "github.com/swaggo/files"
@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-func SetupRoutes(db *sql.DB, jwtKey []byte, validateExpirationDate bool) *gin.Engine {
+func SetupRoutes(db *sql.DB, jwtKey []byte) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(unhandledErrorHandler())
@@ -29,7 +29,7 @@ func SetupRoutes(db *sql.DB, jwtKey []byte, validateExpirationDate bool) *gin.En
 		apiGroup.POST("/token/refresh", refreshToken(db, jwtKey))
 		apiGroup.POST("/register", register(db))
 		apiGroup.POST("/login", login(db, jwtKey))
-		apiGroup.GET("/profile", security.JwtMiddleware(jwtKey, validateExpirationDate), profile())
+		apiGroup.GET("/profile", jwtsecurity.JwtMiddleware(jwtKey), profile())
 
 		apiGroup.GET("/alive", alive())
 	}
@@ -68,7 +68,7 @@ func refreshToken(db *sql.DB, jwtKey []byte) gin.HandlerFunc {
 			return
 		}
 
-		refreshTokenClaim := security.RefreshTokenClaim{}
+		refreshTokenClaim := jwtsecurity.RefreshTokenClaim{}
 
 		token, err := jwt.ParseWithClaims(refreshTokenVo.RefreshToken, &refreshTokenClaim, func(token *jwt.Token) (interface{}, error) {
 			// Don't forget to validate the alg is what you expect:
@@ -185,7 +185,7 @@ func login(db *sql.DB, jwtKey []byte) gin.HandlerFunc {
 // @Router /api/profile [get]
 func profile() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		user := security.GetAccessTokenFromContext(ctx)
+		user := jwtsecurity.GetAccessTokenFromContext(ctx)
 		ctx.JSON(http.StatusOK, model.UserVo{
 			Id:      user.Id,
 			Name:    user.Name,
