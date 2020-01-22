@@ -4,13 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/koloo91/jwt-security"
 	"github.com/koloo91/loginservice/model"
 	"github.com/koloo91/loginservice/repository"
 	"golang.org/x/crypto/bcrypt"
 	"log"
-	"time"
 )
 
 func Register(ctx context.Context, db *sql.DB, registerVo *model.RegisterVo) (*model.UserVo, error) {
@@ -42,32 +40,7 @@ func Login(ctx context.Context, db *sql.DB, jwtKey []byte, loginVo *model.LoginV
 		return nil, fmt.Errorf("invalid credentials")
 	}
 
-	refreshTokenClaims := &jwtsecurity.RefreshTokenClaim{
-		Id: user.Id,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(7 * 24 * time.Hour).Unix(),
-		},
-	}
-
-	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims)
-	refreshTokenString, err := refreshToken.SignedString(jwtKey)
-	if err != nil {
-		log.Printf("error signing refresh token '%s'", err.Error())
-		return nil, err
-	}
-
-	accessTokenClaims := &jwtsecurity.AccessTokenClaim{
-		Id:      user.Id,
-		Name:    user.Name,
-		Created: user.Created,
-		Updated: user.Updated,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(15 * time.Minute).Unix(),
-		},
-	}
-
-	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenClaims)
-	accessTokenString, err := accessToken.SignedString(jwtKey)
+	refreshTokenString, accessTokenString, err := jwtsecurity.GenerateTokenPair(user.Id, user.Name, user.Created, user.Updated, jwtKey)
 	if err != nil {
 		log.Printf("error signing access token '%s'", err.Error())
 		return nil, err
@@ -87,34 +60,8 @@ func Refresh(ctx context.Context, db *sql.DB, jwtKey []byte, refreshTokenClaim j
 		return nil, err
 	}
 
-	refreshTokenClaims := &jwtsecurity.RefreshTokenClaim{
-		Id: user.Id,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(7 * 24 * time.Hour).Unix(),
-		},
-	}
-
-	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims)
-	refreshTokenString, err := refreshToken.SignedString(jwtKey)
+	refreshTokenString, accessTokenString, err := jwtsecurity.GenerateTokenPair(user.Id, user.Name, user.Created, user.Updated, jwtKey)
 	if err != nil {
-		log.Printf("error signing refresh token '%s'", err.Error())
-		return nil, err
-	}
-
-	accessTokenClaims := &jwtsecurity.AccessTokenClaim{
-		Id:      user.Id,
-		Name:    user.Name,
-		Created: user.Created,
-		Updated: user.Updated,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(15 * time.Minute).Unix(),
-		},
-	}
-
-	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenClaims)
-	accessTokenString, err := accessToken.SignedString(jwtKey)
-	if err != nil {
-		log.Printf("error signing access token '%s'", err.Error())
 		return nil, err
 	}
 
