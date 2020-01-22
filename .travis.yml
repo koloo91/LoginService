@@ -11,4 +11,9 @@ script:
   - make increment-version
   - make build-docker
   - make push-docker
+  - git config --global user.email "travis@travis-ci.org"
+  - git config --global user.name "Travis CI"
+  - git add . *.html
+  - git commit -m "Updated to version $(cat version)"
+  - git push origin
 
